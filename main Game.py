@@ -4,6 +4,7 @@ from random import randint
 
 PROJECT_SPEED_X = 7
 PROJECT_SPEED_Y = 7
+KILLCOUNT = 15
 
 def base():
     pygame.init()
@@ -13,15 +14,16 @@ def base():
     lvlcount = 1
     finallvl = 0
     bosshp = 5
-    killcount = 30
+    killcount = KILLCOUNT
     screencount = 0
     enemyspeed = 3
     playerspeed = 5
     projectspeedx = 0
     projectspeedy = 0
     keystate = pygame.key.get_pressed()
+    update = True
     screen = pygame.display.set_mode((960, 960))
-    pygame.display.set_caption("Underground menace")
+    pygame.display.set_caption("Sword Quest")
     screen.fill((202, 220, 159))
     pygame.display.flip()
 
@@ -90,8 +92,8 @@ def base():
                         self.rect.top = block.bottom
 
             # Спрайт направления
-            if not (keystate[pygame.K_w]) and not (keystate[pygame.K_s]) and not (keystate[pygame.K_a]) and not (
-                    keystate[pygame.K_d]):
+            if not (keystate[pygame.K_w]) and not (keystate[pygame.K_s]) and \
+                    not (keystate[pygame.K_a]) and not (keystate[pygame.K_d]):
                 if self.lastkey == 1:
                     self.image = pygame.image.load("pictures/MC turn left.png")
                 if self.lastkey == 2:
@@ -218,11 +220,6 @@ def base():
             else:
                 self.image = pygame.image.load("pictures/troop2.png")
 
-        def death(self, deathframe):
-            self.deathframe = deathframe
-            collectible = Collectible(self.rect.centerx, self.rect.centery)
-            collectible_group.add(collectible)
-            self.kill()
 
     class Boss(pygame.sprite.Sprite):
         def __init__(self):  # Создание спрайта
@@ -252,29 +249,30 @@ def base():
             self.rect.centery = 200
         def closetutor(self):
             self.kill()
-        def theend(self):
-            pygame.sprite.Sprite.__init__(self)
-            self.image = pygame.image.load("pictures/loose.png")
-            self.rect = self.image.get_rect()
-            self.rect.centerx = 480
-            self.rect.centery = 480
-        def win(self):
-            pygame.sprite.Sprite.__init__(self)
-            self.image = pygame.image.load("pictures/win.png")
-            self.rect = self.image.get_rect()
-            self.rect.centerx = 480
-            self.rect.centery = 200
 
-    class Collectible(pygame.sprite.Sprite):
-        def __init__(self, centerx, centery):
+    class THEEND(pygame.sprite.Sprite):
+        def __init__(self):
             pygame.sprite.Sprite.__init__(self)
-            self.image = pygame.image.load("pictures/Collect.png")
+            self.image = pygame.image.load("pictures/Death screen.png")
             self.rect = self.image.get_rect()
-            self.centerx = centerx
-            self.centery = centery
-        def update(self):
-            self.rect.centerx = self.centerx
-            self.rect.centery = self.centery
+            self.rect.top = 0
+            self.rect.left = 0
+
+    class WIN(pygame.sprite.Sprite):
+        def __init__(self):
+            pygame.sprite.Sprite.__init__(self)
+            self.image = pygame.image.load("pictures/win screen.png")
+            self.rect = self.image.get_rect()
+            self.rect.top = 0
+            self.rect.left = 0
+
+    class Title(pygame.sprite.Sprite):
+        def __init__(self):
+            pygame.sprite.Sprite.__init__(self)
+            self.image = pygame.image.load("pictures/Title screen.png")
+            self.rect = self.image.get_rect()
+            self.rect.top = 0
+            self.rect.left = 0
 
     class Sword(pygame.sprite.Sprite):
         def __init__(self):
@@ -338,6 +336,7 @@ def base():
               "@@@@@##@@@@@", ]
 
     def levelmaker(level):
+        global texture, mc
         collis = []
         for i, line in enumerate(level):
             for j, character in enumerate(line):
@@ -361,15 +360,12 @@ def base():
     shoot_group = pygame.sprite.Group()
     boss_group = pygame.sprite.Group()
     bossshoot_group = pygame.sprite.Group()
-    collectible_group = pygame.sprite.Group()
     hud_group = pygame.sprite.Group()
     sword_group = pygame.sprite.Group()
     sword = Sword()
     hud = HUD()
     boss = Boss()
-    mc = MC(480, 480)
     hud_group.add(hud)
-    mc_group.add(mc)
 
     # Логика игры
     while True:
@@ -381,6 +377,10 @@ def base():
 
         if screencount == 0:
             screen.fill((202, 220, 159))
+            title = Title()
+            sword_group.add(title)
+            sword_group.draw(screen)
+            pygame.display.flip()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -388,8 +388,15 @@ def base():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         screencount = 1
+                        sword_group.empty()
 
         if screencount == 1:
+            if update == True:
+                mc = MC(480,480)
+                mc_group.add(mc)
+                seconds = 0
+                killcount = KILLCOUNT
+                update = False
             if seconds > 5:
                 hud.closetutor()
             if killcount == 0:
@@ -397,22 +404,25 @@ def base():
                     collis = levelmaker(level2)
                     enemy_group.empty()
                     shoot_group.empty()
-                    mc.rect.centerx = 480
-                    mc.rect.centery = 350
+                    mc_group.empty()
+                    mc = MC(480,350)
+                    mc_group.add(mc)
                 if lvlcount == 2:
                     collis = levelmaker(level3)
                     enemy_group.empty()
                     shoot_group.empty()
-                    mc.rect.centerx = 480
-                    mc.rect.centery = 480
+                    mc_group.empty()
+                    mc = MC(480, 480)
+                    mc_group.add(mc)
                 if lvlcount == 3:
                     collis = levelmaker(level4)
                     enemy_group.empty()
                     shoot_group.empty()
                     boss_group.add(boss)
-                    mc.rect.centerx = 200
-                    mc.rect.centery = 480
-                killcount = 30
+                    mc_group.empty()
+                    mc = MC(200, 480)
+                    mc_group.add(mc)
+                killcount = KILLCOUNT
                 lvlcount += 1
                 if lvlcount > 3:
                     finallvl = 1
@@ -483,7 +493,6 @@ def base():
             enemy_group.update()
             boss_group.update()
             bossshoot_group.update()
-            collectible_group.update()
             shoot_group.update()
 
             # Логика столкновений
@@ -491,15 +500,18 @@ def base():
                 killcount -= 1
             if pygame.sprite.groupcollide(enemy_group, mc_group, True, True):
                 screencount = 2
-            pygame.sprite.groupcollide(bossshoot_group, mc_group, True, True)
+                continue
+            if pygame.sprite.groupcollide(bossshoot_group, mc_group, True, True):
+                screencount = 2
+                continue
             if pygame.sprite.groupcollide(shoot_group, boss_group, True, False):
                 bosshp -= 1
                 if bosshp == 0:
                     boss.kill()
                     sword_group.add(sword)
             if pygame.sprite.groupcollide(mc_group, sword_group, False, False):
-                pygame.quit
-                sys.exit()
+                screencount = 3
+                continue
 
             # Отрисовка всего
             screen.fill((202, 220, 159))
@@ -510,19 +522,48 @@ def base():
             shoot_group.draw(screen)
             mc_group.draw(screen)  # прорисовка спрайта
             enemy_group.draw(screen)
-            collectible_group.draw(screen)
             boss_group.draw(screen)
             bossshoot_group.draw(screen)
             pygame.display.flip()  # обновление окна
 
-    if screencount == 2:
-        screen.fill((202, 220, 159))
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    screencount = 1
+        #Экран смерти
+        if screencount == 2:
+            screen.fill((202, 220, 159))
+            theend = THEEND()
+            hud_group.empty()
+            hud_group.add(theend)
+            hud_group.draw(screen)
+            pygame.display.flip()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        screencount = 1
+                        update = True
+                        enemy_group.empty()
+                        shoot_group.empty()
+                        boss_group.empty()
+                        bossshoot_group.empty()
+                        finallvl = 0
+                        lvlcount = 0
+                        killcount = KILLCOUNT
+                        collis = levelmaker(level1)
+                        hud_group.empty()
+                        continue
+
+        #Новый уровень
+        if screencount == 3:
+            screen.fill((202, 220, 159))
+            win = WIN()
+            hud_group.empty()
+            hud_group.add(win)
+            hud_group.draw(screen)
+            pygame.display.flip()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
 
 base()
