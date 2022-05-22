@@ -576,7 +576,7 @@ def base():
             hud_group.draw(screen)
             text1 = font.render(str(killcount), False, (47,98,47))
             if lvlcount < 6:
-                screen.blit(text1, (100, 800))
+                screen.blit(text1, (82, 810))
             sword_group.draw(screen)
             shoot_group.draw(screen)
             mc_group.draw(screen)  # прорисовка спрайта
