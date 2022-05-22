@@ -4,14 +4,14 @@ from random import randint
 
 PROJECT_SPEED_X = 7
 PROJECT_SPEED_Y = 7
-KILLCOUNT = 15
+KILLCOUNT = 30
 
 def base():
     pygame.init()
     clock = pygame.time.Clock()
     frame = 0
     seconds = 0
-    lvlcount = 1
+    lvlcount = 0
     finallvl = 0
     bosshp = 5
     killcount = KILLCOUNT
@@ -22,10 +22,91 @@ def base():
     projectspeedy = 0
     keystate = pygame.key.get_pressed()
     update = True
+    enemies = 0
+    font = pygame.font.Font("Arcadianarcade-Regular.otf",80)
     screen = pygame.display.set_mode((960, 960))
     pygame.display.set_caption("Sword Quest")
     screen.fill((202, 220, 159))
     pygame.display.flip()
+
+    # Уровни
+    level1 = ["@@@@@##@@@@@",
+              "@##########@",
+              "@##########@",
+              "@##########@",
+              "@##########@",
+              "############",
+              "############",
+              "@##########@",
+              "@##########@",
+              "@##########@",
+              "@##########@",
+              "@@@@@##@@@@@", ]
+
+    level2 = ["@@@@@##@@@@@",
+              "@##########@",
+              "@##########@",
+              "@##########@",
+              "@##########@",
+              "#####@@#####",
+              "#####@@#####",
+              "@##########@",
+              "@##########@",
+              "@##########@",
+              "@##########@",
+              "@@@@@##@@@@@", ]
+
+    level3 = ["@@@@@##@@@@@",
+              "@##########@",
+              "@##########@",
+              "@###@##@###@",
+              "@##@####@##@",
+              "############",
+              "############",
+              "@##@####@##@",
+              "@###@##@###@",
+              "@##########@",
+              "@##########@",
+              "@@@@@##@@@@@", ]
+
+    level5 = ["@@@@@##@@@@@",
+              "@#@@####@@#@",
+              "@@@######@@@",
+              "@@########@@",
+              "@##########@",
+              "#####@@#####",
+              "#####@@#####",
+              "@##########@",
+              "@@########@@",
+              "@@@######@@@",
+              "@#@@####@@#@",
+              "@@@@@##@@@@@", ]
+
+    level4 = ["@@@@@##@@@@@",
+              "@#@@@##@@@#@",
+              "@##########@",
+              "@##@@##@@##@",
+              "@##########@",
+              "############",
+              "############",
+              "@##########@",
+              "@##@@##@@##@",
+              "@##########@",
+              "@#@@@##@@@#@",
+              "@@@@@##@@@@@", ]
+
+    level6 = ["@@@@@##@@@@@",
+              "@##########@",
+              "@##########@",
+              "@##########@",
+              "@##########@",
+              "@##@#@@####@",
+              "@##########@",
+              "@#######@##@",
+              "@@########@@",
+              "@##########@",
+              "@##########@",
+              "@@@@@##@@@@@", ]
 
     class MC(pygame.sprite.Sprite):  # Класс главного героя
         def __init__(self, x, y):
@@ -176,6 +257,8 @@ def base():
             self.mcright = mc.rect.right
             self.mcleft = mc.rect.left
             self.mc = mc
+            self.dir1 = 0
+            self.dir2 = 0
 
         def update(self):
             self.mctop = mc.rect.top
@@ -184,37 +267,42 @@ def base():
             self.mcleft = mc.rect.left
             self.mccenterx = mc.rect.centerx
             self.mccentery = mc.rect.centery
+            self.speedy = enemyspeed
+            self.speedx = enemyspeed
 
             # Интелект и коллизии со стенами
             if self.rect.centery > self.mccentery:
-                self.speedy = enemyspeed
+                self.dir1 = 1
                 self.rect.y -= self.speedy
                 for block in collis:
                     block = block[0]
                     if self.rect.colliderect(block):
                         self.rect.top = block.bottom
             if self.rect.centery < self.mccentery:
-                self.speedy = enemyspeed
+                self.dir1 = 2
                 self.rect.y += self.speedy
                 for block in collis:
                     block = block[0]
                     if self.rect.colliderect(block):
                         self.rect.bottom = block.top
             if self.rect.centerx < self.mccenterx:
-                self.speedx = enemyspeed
+                self.dir2 = 1
                 self.rect.x += self.speedx
                 for block in collis:
                     block = block[0]
                     if self.rect.colliderect(block):
                         self.rect.right = block.left
             if self.rect.centerx > self.mccenterx:
-                self.speedx = enemyspeed
+                self.dir2 = 2
                 self.rect.x -= self.speedx
                 for block in collis:
                     block = block[0]
                     if self.rect.colliderect(block):
                         self.rect.left = block.right
 
+            if (self.dir1<0 and self.dir1<0):
+                self.speedx = self.speedx/1.5
+                self.speedy = self.speedy/1.5
             if (frame // 10) % 2 == 0:
                 self.image = pygame.image.load("pictures/troop1.png")
             else:
@@ -282,59 +370,6 @@ def base():
             self.rect.centerx = 920
             self.rect.centery = 480
 
-    # Уровни
-    level1 = ["@@@@@##@@@@@",
-              "@##########@",
-              "@##########@",
-              "@##########@",
-              "@##########@",
-              "############",
-              "############",
-              "@##########@",
-              "@##########@",
-              "@##########@",
-              "@##########@",
-              "@@@@@##@@@@@", ]
-
-    level2 = ["@@@@@##@@@@@",
-              "@##########@",
-              "@##########@",
-              "@##########@",
-              "@##########@",
-              "#####@@#####",
-              "#####@@#####",
-              "@##########@",
-              "@##########@",
-              "@##########@",
-              "@##########@",
-              "@@@@@##@@@@@", ]
-
-    level3 = ["@@@@@##@@@@@",
-              "@##########@",
-              "@##########@",
-              "@####@@####@",
-              "@##########@",
-              "###@####@###",
-              "###@####@###",
-              "@##########@",
-              "@####@@####@",
-              "@##########@",
-              "@##########@",
-              "@@@@@##@@@@@", ]
-
-    level4 = ["@@@@@##@@@@@",
-              "@##########@",
-              "@##########@",
-              "@##########@",
-              "@##########@",
-              "@##@#@@####@",
-              "@##########@",
-              "@#######@##@",
-              "@@########@@",
-              "@##########@",
-              "@##########@",
-              "@@@@@##@@@@@", ]
-
     def levelmaker(level):
         global texture, mc
         collis = []
@@ -400,9 +435,11 @@ def base():
             if seconds > 5:
                 hud.closetutor()
             if killcount == 0:
+                lvlcount += 1
                 if lvlcount == 1:
                     collis = levelmaker(level2)
                     enemy_group.empty()
+                    enemies = 0
                     shoot_group.empty()
                     mc_group.empty()
                     mc = MC(480,350)
@@ -410,6 +447,7 @@ def base():
                 if lvlcount == 2:
                     collis = levelmaker(level3)
                     enemy_group.empty()
+                    enemies = 0
                     shoot_group.empty()
                     mc_group.empty()
                     mc = MC(480, 480)
@@ -417,14 +455,30 @@ def base():
                 if lvlcount == 3:
                     collis = levelmaker(level4)
                     enemy_group.empty()
+                    enemies = 0
+                    shoot_group.empty()
+                    mc_group.empty()
+                    mc = MC(480, 480)
+                    mc_group.add(mc)
+                if lvlcount == 4:
+                    collis = levelmaker(level5)
+                    enemy_group.empty()
+                    enemies = 0
+                    shoot_group.empty()
+                    mc_group.empty()
+                    mc = MC(480, 350)
+                    mc_group.add(mc)
+                if lvlcount == 5:
+                    collis = levelmaker(level6)
+                    enemy_group.empty()
+                    enemies = 0
                     shoot_group.empty()
                     boss_group.add(boss)
                     mc_group.empty()
                     mc = MC(200, 480)
                     mc_group.add(mc)
                 killcount = KILLCOUNT
-                lvlcount += 1
-                if lvlcount > 3:
+                if lvlcount > 4:
                     finallvl = 1
 
             if frame % 15 == 0 and finallvl == 1 and bosshp > 0:
@@ -432,7 +486,7 @@ def base():
 
             # Спавн врагов
             spawnpos = randint(1, 4)
-            if frame == 1 and lvlcount < 4:
+            if frame == 1 and lvlcount < 5:
                 if spawnpos == 1:
                     enemy = Enemy(500, 0)
                     enemy_group.add(enemy)
@@ -445,6 +499,7 @@ def base():
                 if spawnpos == 4:
                     enemy = Enemy(980, 500)
                     enemy_group.add(enemy)
+                enemies += 1
 
             # Логика клавиш
             for event in pygame.event.get():
@@ -498,6 +553,7 @@ def base():
             # Логика столкновений
             if pygame.sprite.groupcollide(shoot_group, enemy_group, True, True):
                 killcount -= 1
+                enemies -= 1
             if pygame.sprite.groupcollide(enemy_group, mc_group, True, True):
                 screencount = 2
                 continue
@@ -518,6 +574,9 @@ def base():
             for block in collis:
                 screen.blit(block[1], block[0])
             hud_group.draw(screen)
+            text1 = font.render(str(killcount), False, (47,98,47))
+            if lvlcount < 6:
+                screen.blit(text1, (100, 800))
             sword_group.draw(screen)
             shoot_group.draw(screen)
             mc_group.draw(screen)  # прорисовка спрайта
@@ -543,6 +602,7 @@ def base():
                         screencount = 1
                         update = True
                         enemy_group.empty()
+                        enemies = 0
                         shoot_group.empty()
                         boss_group.empty()
                         bossshoot_group.empty()
