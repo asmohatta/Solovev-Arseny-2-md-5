@@ -23,6 +23,7 @@ def base():
     keystate = pygame.key.get_pressed()
     update = True
     enemies = 0
+    musicstart=0
     font = pygame.font.Font("Arcadianarcade-Regular.otf",80)
     screen = pygame.display.set_mode((960, 960))
     pygame.display.set_caption("Sword Quest")
@@ -556,6 +557,7 @@ def base():
                 enemies -= 1
             if pygame.sprite.groupcollide(enemy_group, mc_group, True, True):
                 screencount = 2
+                musicstart = 0
                 continue
             if pygame.sprite.groupcollide(bossshoot_group, mc_group, True, True):
                 screencount = 2
@@ -567,6 +569,7 @@ def base():
                     sword_group.add(sword)
             if pygame.sprite.groupcollide(mc_group, sword_group, False, False):
                 screencount = 3
+                musicstart=0
                 continue
 
             # Отрисовка всего
@@ -583,12 +586,21 @@ def base():
             enemy_group.draw(screen)
             boss_group.draw(screen)
             bossshoot_group.draw(screen)
+            if musicstart == 0:
+                pygame.mixer.music.load("Sewer Surfin'.mp3")
+                pygame.mixer.music.play(5)
+                musicstart = 1
             pygame.display.flip()  # обновление окна
 
         #Экран смерти
         if screencount == 2:
             screen.fill((202, 220, 159))
             theend = THEEND()
+            if musicstart == 0:
+                pygame.mixer.music.unload()
+                pygame.mixer.music.load("Game Over.mp3")
+                pygame.mixer.music.play()
+                musicstart = 1
             hud_group.empty()
             hud_group.add(theend)
             hud_group.draw(screen)
@@ -608,15 +620,21 @@ def base():
                         bossshoot_group.empty()
                         finallvl = 0
                         lvlcount = 0
+                        musicstart = 0
                         killcount = KILLCOUNT
                         collis = levelmaker(level1)
                         hud_group.empty()
                         continue
 
-        #Новый уровень
+        #Финальный экран
         if screencount == 3:
             screen.fill((202, 220, 159))
             win = WIN()
+            if musicstart == 0:
+                pygame.mixer.music.unload
+                pygame.mixer.music.load("Epilogue.mp3")
+                pygame.mixer.music.play()
+                musicstart = 1
             hud_group.empty()
             hud_group.add(win)
             hud_group.draw(screen)
